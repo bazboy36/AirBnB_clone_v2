@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 '''A Fabric script that distributes an archive to web servers'''
 
-from fabric.api import run
+from fabric.api import run, put, env
 from fabric.decorators import runs_once
 
 
-env.hosts = ['100.25.47.182', '100.25.153.250']
-env.user = ['ubuntu']
+env.hosts = ['ubuntu@100.25.47.182', 'ubuntu@100.25.153.250']
+
 
 def do_deploy(archive_path):
-    '''Returns True if all operations have been done correctly, 
+    '''Returns True if all operations have been done correctly,
     otherwise returns False'''
-    put('archive_path', '/tmp')
+    put(archive_path, '/tmp')
     no_tgz = archive_path[9:-4]
     tgz = archive_path[9:]
     data_path = ('/data/web_static/releases/{}'.format(no_tgz))
