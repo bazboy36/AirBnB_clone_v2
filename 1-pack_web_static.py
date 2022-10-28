@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Write a Fabric script that generates a .tgz archive from the contents """
+''' Write a Fabric script that generates a .tgz archive from the contents '''
 
 from fabric.api import local
 from fabric.decorators import runs_once
