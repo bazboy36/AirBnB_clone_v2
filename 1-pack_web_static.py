@@ -9,10 +9,11 @@ import datetime
 @runs_once
 def do_pack():
     ''' creates a .tgz archive from the contents of web_static folder '''
+    local('mkdir -p versions')
     date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     path = 'versions/web_static_{}.tgz'.format(date)
-    result = local(f'mkdir -p versions && tar -cvzf {path} web_static')
+    result = local(f'tar -cvzf {path} web_static')
 
     if result.failed:
         return None
-    return Path
+    return path
