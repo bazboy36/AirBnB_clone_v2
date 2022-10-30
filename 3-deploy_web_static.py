@@ -6,11 +6,9 @@ from fabric.api import local, put, run, env
 from fabric.decorators import runs_once
 import datetime
 import os
-do_pack = __import__('1-pack_web_static').do_pack
-do_deploy = __import__('2-do_deploy_web_static').do_deploy
 
 
-""" def do_pack():
+def do_pack():
     '''creates a .tgz archive from the contents of web_static folder'''
     local('mkdir -p versions')
     date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -20,15 +18,15 @@ do_deploy = __import__('2-do_deploy_web_static').do_deploy
     if result.failed:
         return None
     return path
-"""
+
 
 env.hosts = ['ubuntu@100.25.47.182', 'ubuntu@100.25.153.250']
 
 
-"""def do_deploy(archive_path):
-    Deploys the static files to the host servers.
+def do_deploy(archive_path):
+    """Deploys the static files to the host servers.
     Args:
-        archive_path (str): The path to the archived static files.
+        archive_path (str): The path to the archived static files."""
     if not os.path.exists(archive_path):
         return False
     file_name = os.path.basename(archive_path)
@@ -48,7 +46,7 @@ env.hosts = ['ubuntu@100.25.47.182', 'ubuntu@100.25.153.250']
         success = True
     except Exception:
         success = False
-    return success"""
+    return success
 
 
 def deploy():
