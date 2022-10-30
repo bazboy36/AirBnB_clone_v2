@@ -52,6 +52,7 @@ env.hosts = ['ubuntu@100.25.47.182', 'ubuntu@100.25.153.250']
 
 
 def deploy():
+    ''' implements do_pack and do_deploy and returns True on success'''
     path = do_pack()
     if path is None:
         return False
