@@ -15,12 +15,12 @@ def do_clean(number=0):
     etc."""
     if number == 0 or number == 1:
         with cd('/AirBnB_clone_v2/versions'):
-            local("ls -t web_static* | awk 'NR>1' | xargs rm -f")
+            local("ls -t | awk 'NR>1' | xargs rm -f")
         with cd('/data/web_static/releases'):
-            run("ls -td */ | awk 'NR>1' | xargs rm -rf")
+            run("ls -t / | awk 'NR>1' | xargs rm -rf")
     else:
         with cd('/AirBnB_clone_v2/versions'):
-            local("ls -t web_static* | awk 'NR>{}' | xargs rm -f".format(
+            local("ls -t | awk 'NR>{}' | xargs rm -f".format(
                   number))
         with cd('/data/web_static/releases'):
-            run("ls -td */ | awk 'NR>{}' | xargs rm -rf".format(number))
+            run("ls -t | awk 'NR>{}' | xargs rm -rf".format(number))
