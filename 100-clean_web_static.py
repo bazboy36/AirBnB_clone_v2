@@ -14,13 +14,10 @@ def do_clean(number=0):
     and second most recent versions of your archive.
     etc."""
     if number == 0 or number == 1:
-        with cd('/AirBnB_clone_v2/versions'):
-            local("ls -t | awk 'NR>1' | xargs rm -f")
-        with cd('/data/web_static/releases'):
-            run("ls -t / | awk 'NR>1' | xargs rm -rf")
+        local("rm -f $(ls -1t /AirBnB_clone_v2/versions | awk 'NR>1')")
+        run("rm -rf $(ls -1t /data/web_static/releases | awk 'NR>1')")
     else:
-        with cd('/AirBnB_clone_v2/versions'):
-            local("ls -t | awk 'NR>{}' | xargs rm -f".format(
-                  number))
-        with cd('/data/web_static/releases'):
-            run("ls -t | awk 'NR>{}' | xargs rm -rf".format(number))
+        local("rm -f $(ls -1t /AirBnB_clone_v2/versions | awk 'NR>{}')".format(
+              number))
+        run("rm -rf $(ls -1t /data/web_static/releases | awk 'NR>{}')".format(
+            number))
