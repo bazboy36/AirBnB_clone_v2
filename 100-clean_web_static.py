@@ -1,23 +1,31 @@
 #!/usr/bin/python3
 """ Fabric script that deletes unneded achrived"""
-from fabric.api import run, local, cd, env
-
+from fabric.api import *
+import os
 
 env.hosts = env.hosts = ['ubuntu@100.25.47.182', 'ubuntu@100.25.153.250']
 
 
 def do_clean(number=0):
-    """ number is the number of the archives,
-    including the most recent, to keep.
-    If number is 0 or 1, keep only the most recent version of archive.
-    if number is 2, keep the most recent,
-    and second most recent versions of your archive.
-    etc."""
-    if number == 0 or number == 1:
-        local("rm -f $(ls -1t /AirBnB_clone_v2/versions | awk 'NR>1')")
-        run("rm -rf $(ls -1t /data/web_static/releases | awk 'NR>1')")
+    """Deletes out-of-date archives of the static files.
+    Args:
+        number (Any): The number of archives to keep.
+    """
+    archives = os.listdir('versions/')
+    archives.sort(reverse=True)
+    start = int(number)
+    if not start:
+        start += 1
+    if start < len(archives):
+        archives = archives[start:]
     else:
-        local("rm -f $(ls -1t /AirBnB_clone_v2/versions | awk 'NR>{}')".format(
-              number))
-        run("rm -rf $(ls -1t /data/web_static/releases | awk 'NR>{}')".format(
-            number))
+        archives = []
+    for archive in archives:
+        os.unlink('versions/{}'.format(archive))
+    cmd_parts = [
+        "rm -rf $(",
+        "find /data/web_static/releases/ -maxdepth 1 -type d -iregex",
+        " '/data/web_static/releases/web_static_.*'",
+        " | sort -r | tr '\\n' ' ' | cut -d ' ' -f{}-)".format(start + 1)
+    ]
+    run(''.join(cmd_parts))
