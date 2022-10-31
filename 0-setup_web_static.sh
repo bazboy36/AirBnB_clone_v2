@@ -1,34 +1,68 @@
 #!/usr/bin/env bash
-#Write a Bash script that sets up your web servers for the deployment of web_static
+# Bash script that sets up your web servers for the deployment of web_static
+apt-get update
+apt-get install -y nginx
+mkdir -p /data/web_static/releases/test/ /data/web_static/shared/ /var/www/html /var/www/error
+chmod -R 755 /var/www
+echo 'Hello World!' > /var/www/html/index.html
+echo -e "Ceci n\x27est pas une page" > /var/www/error/404.html
 
-#install NginX
-sudo apt-get -y update
-sudo apt-get -y install nginx
+# Create a symbolic link
+[ -d /data/web_static/current ] && rm -rf /data/web_static/current
+ln -sf /data/web_static/releases/test/ /data/web_static/current
+ln -sf '/etc/nginx/sites-available/default' '/etc/nginx/sites-enabled/default'
 
-#configure nginx firewall
-sudo ufw allow 'Nginx HTTP'
+# Server configuration
+CONFIG="server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+	server_name _;
+	index index.html index.htm;
+	error_page 404 /404.html;
+	add_header X-Served-By \$hostname;
+	location / {
+		root /var/www/html/;
+		try_files \$uri \$uri/ =404;
+	}
+	location /hbnb_static/ {
+		alias /data/web_static/current/;
+		try_files \$uri \$uri/ =404;
+	}
+	if (\$request_filename ~ redirect_me) {
+		rewrite ^ https://github.com/amarapeace permanent;
+	}
+	location = /404.html {
+		root /var/www/error/;
+		internal;
+	}
+}"
 
-#create folders if they dont exist
-sudo mkdir -p /data/web_static/shared/ /data/web_static/releases/test/
+# HTML file
+HTML_FILE="<!DOCTYPE html>
+<html lang='en-US'>
+	<head>
+		<meta charset=\"utf-8\">
+		<meta name=\"description\" content=\"AirBnB Clone\">
+		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+		<title>AirBnB Clone</title>
+	</head>
+	<body>
+		<header>
+			<h1>AirBnB</h1>
+		</header>
+		<h2>Welcome to AirBnB!</h2>
+	<body>
+</html>
+"
 
-#create fake HTML file
-echo "<h1>Welcome to www.daviesajayi.tech</h1>" > /data/web_static/releases/test/index.html
+echo -e "$HTML_FILE" > /data/web_static/releases/test/index.html
+bash -c "echo -e '$CONFIG' > /etc/nginx/sites-available/default"
+ln -sf '/etc/nginx/sites-available/default' '/etc/nginx/sites-enabled/default'
+chown -R ubuntu:ubuntu /data/
 
-#Create a symbolic link /data/web_static/current for /data/web_static/releases/test/ folder. 
-#if the symbolic link already exists, 
-#it should be deleted and recreated every time the script is ran.
-sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
-
-#Give recursive ownership of the /data/ folder to the ubuntu user AND group
-sudo chown -R ubuntu:ubuntu /data
-
-#Update the Nginx configuration to serve the content of /data/web_static/current/ to hbnb_static
-sudo sed -i '39i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n' /etc/nginx/sites-available/default
-
-#create a symbolic link /etc/nginx/sites-enabled/default for /etc/nginx/sites-available/default
-#if the symbolic link already exists,
-#it should be deleted and recreated every time the script is ran.
-sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-#restart nginx
-sudo service nginx restart
+# start or restart server
+if [ "$(pgrep -c nginx)" -le 0 ]; then
+	service nginx start
+else
+	service nginx restart
+fi
